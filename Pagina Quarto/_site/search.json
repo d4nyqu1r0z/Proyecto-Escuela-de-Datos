@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Presentación Escuela de Datos 2024",
+    "section": "",
+    "text": "Anualmente, la Superintendencia de Educación recopila datos sobre denuncias relacionadas con el sistema educativo. Esto plantea la siguiente pregunta: ¿hay diferencias significativas en la distribución y resolución de denuncias según el género? Este análisis explora la distribución de denuncias por género en el año 2024 utilizando los datos proporcionados por la Superintendencia de Educación para dicho periodo.\nLos enlaces a la base de datos y al PDF que explica las nomenclaturas de las variables se encuentran disponibles en la página Datos.Gob, el portal de datos abiertos del Estado de Chile.\n\n\n\nVisualizar las tendencias de denuncias por género.\nCalcular y comparar la distribución de las denuncias por estado (Resueltas y Activas) respecto de cada género.\n\n\n\n\nEl objetivo de este análisis es identificar posibles patrones de inequidad en la distribución y resolución de denuncias por género, con el fin de proporcionar evidencia que pueda guiar la mejora en el tratamiento de las denuncias por parte de la Superintendencia de Educación.\n\n\n\n\nDEN_GENERO: Indica el género de los denunciantes:\n\n0 = Sin información.\n1 = Masculino.\n2 = Femenino.\n3 = Otro.\n\nDEN_ESTADO: Indica el estado de la denuncia:\n\n1 = Resuelto.\n2 = Activo."
+  },
+  {
+    "objectID": "index.html#presentación-del-problema",
+    "href": "index.html#presentación-del-problema",
+    "title": "Presentación Escuela de Datos 2024",
+    "section": "",
+    "text": "Anualmente, la Superintendencia de Educación recopila datos sobre denuncias relacionadas con el sistema educativo. Esto plantea la siguiente pregunta: ¿hay diferencias significativas en la distribución y resolución de denuncias según el género? Este análisis explora la distribución de denuncias por género en el año 2024 utilizando los datos proporcionados por la Superintendencia de Educación para dicho periodo.\nLos enlaces a la base de datos y al PDF que explica las nomenclaturas de las variables se encuentran disponibles en la página Datos.Gob, el portal de datos abiertos del Estado de Chile.\n\n\n\nVisualizar las tendencias de denuncias por género.\nCalcular y comparar la distribución de las denuncias por estado (Resueltas y Activas) respecto de cada género.\n\n\n\n\nEl objetivo de este análisis es identificar posibles patrones de inequidad en la distribución y resolución de denuncias por género, con el fin de proporcionar evidencia que pueda guiar la mejora en el tratamiento de las denuncias por parte de la Superintendencia de Educación.\n\n\n\n\nDEN_GENERO: Indica el género de los denunciantes:\n\n0 = Sin información.\n1 = Masculino.\n2 = Femenino.\n3 = Otro.\n\nDEN_ESTADO: Indica el estado de la denuncia:\n\n1 = Resuelto.\n2 = Activo."
+  },
+  {
+    "objectID": "index.html#código-y-análisis",
+    "href": "index.html#código-y-análisis",
+    "title": "Presentación Escuela de Datos 2024",
+    "section": "Código y Análisis",
+    "text": "Código y Análisis\n\nPaso 1: Importación de librerías y carga de datos\nCarga las librerías necesarias (readxl para leer archivos Excel y tidyverse para manipulación de datos y creación de gráficos); A continuación, carga el archivo CSV con los datos de las denuncias para el año 2024 utilizando read.csv() con el separador (;), asignando los datos leídos al objeto datos.\n\nlibrary(readxl)\nlibrary(tidyverse)\n\ndatos &lt;- read.csv(\"Denuncias 2024/20240630_DENUNCIAS_2024_20240930_PUBL.csv\", sep = \";\")\n\n\n\nPaso 2: Limpieza de datos\nEl código realiza una limpieza y validación de los datos en el objeto datos usando el paquete dplyr. Crea un nuevo data frame llamado datos_limpios, donde las columnas DEN_GENERO y DEN_ESTADO se convierten en factores con etiquetas descriptivas para sus niveles. Además, filtra las filas para eliminar aquellas donde estas columnas tengan valores NA, asegurando que los datos estén completos para estas variables.\n\ndatos_limpios &lt;- datos %&gt;%\n  mutate(\n    DEN_GENERO = factor(DEN_GENERO, levels = 0:3, \n                       labels = c(\"Sin información\", \n                                  \"Masculino\", \n                                  \"Femenino\", \n                                  \"Otro\")),\n    DEN_ESTADO = factor(DEN_ESTADO, levels = c(1, 2), \n                       labels = c(\"Resuelto\", \n                                  \"Activo\"))\n  ) %&gt;%\n  filter(!is.na(DEN_GENERO), !is.na(DEN_ESTADO))\n\n\n\nPaso 3: Visualización gráfica\nEl código utiliza ggplot2 para generar un gráfico de barras que muestra la distribución de denuncias por género. La función aes() asigna la variable DEN_GENERO al eje X y al color de relleno de las barras. geom_bar() crea las barras, mientras que labs() personaliza los títulos de los ejes, el título principal del gráfico, y elimina la etiqueta del relleno.\nSe aplica el tema minimalista con theme_minimal(), y la leyenda se posiciona en la parte inferior mediante theme(legend.position = \"bottom\").\n\ndatos_limpios %&gt;%\n  ggplot(aes(x = DEN_GENERO, fill = DEN_GENERO)) +\n  geom_bar() +\n  labs(\n    x = \"Género\",\n    y = \"Cantidad de denuncias\",\n    title = \"Distribución de denuncias por género\",\n    fill = \"\"\n  ) +\n  theme_minimal() +\n  theme(legend.position = \"bottom\")\n\n\n\n\n\n\n\n\nFinalmente, calcula y visualiza la proporción de denuncias resueltas por género. Primero, agrupa los datos por DEN_GENERO y calcula la proporción de casos donde DEN_ESTADO es igual a “Resuelto”. Luego, utiliza ggplot2 para crear un gráfico de barras con geom_col(), mostrando estas proporciones en el eje Y. La escala del eje Y se formatea como porcentaje con scales::percent y se limita al rango 0 - 0.8.\nLos títulos, etiquetas y leyenda se personalizan con labs(), y el tema minimalista se aplica con theme_minimal(), ubicando la leyenda en la parte inferior, similar a la estética del gráfico anterior.\n\ndatos_limpios %&gt;%\n  group_by(DEN_GENERO) %&gt;%\n  summarize(proporcion_resueltas = mean(DEN_ESTADO == \"Resuelto\")) %&gt;%\n  ggplot(aes(x = DEN_GENERO, y = proporcion_resueltas, fill = DEN_GENERO)) +\n  geom_col() +\n  scale_y_continuous(labels = scales::percent, limits = c(0, 0.8)) +  \n  labs(\n    x = \"Género\",\n    y = \"Proporción de denuncias resueltas\",\n    title = \"Proporción de denuncias resueltas por género\",\n    fill = \"\"\n  ) +\n  theme_minimal() +  \n  theme(legend.position = \"bottom\")"
+  },
+  {
+    "objectID": "index.html#conclusiones",
+    "href": "index.html#conclusiones",
+    "title": "Presentación Escuela de Datos 2024",
+    "section": "Conclusiones",
+    "text": "Conclusiones\n\nUna mayor proporción de denuncias fueron presentadas por personas de género Femenino en comparación con el resto de géneros.\nExiste una mayor proporción de denuncias Resueltas en comparación con las Activas en todos los géneros, sugeriendo una eficiencia general en la resolución de denuncias.\nEl género Otro muestra una representación significativamente menor en comparación con los géneros binarios, lo que podría reflejar una falta de categorías adecuadas para personas no binarias o una falta de datos en este grupo."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  }
+]
